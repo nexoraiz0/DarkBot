@@ -11,7 +11,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 logging.basicConfig(level=logging.INFO)
 
 # Получаем токен из переменных окружения для безопасности на Railway
-BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # Значение value=64 в Telegram Dice API соответствует комбинации 🎰 777 (джекпот)
 SLOT_JACKPOT_VALUE = 64
