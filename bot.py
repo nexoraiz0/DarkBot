@@ -64,7 +64,6 @@ async def handle_win(message: Message) -> None:
 
     # Итоговый текст строго по вашему шаблону с маскировкой ссылки под @SeeSheperdBank
     response_text = (
-        f"Переслано от •.•✧Demon | #D\n"
         f"Джекпот {premium_sevens} !\n\n"
         f"Поздравляю ты выбил нфт себе в профиль\n"
         f"Нфт скоро будет зачислен на твой аккаунт\n"
