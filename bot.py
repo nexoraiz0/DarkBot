@@ -37,7 +37,6 @@ router = Router()
 async def cmd_start(message: Message) -> None:
     await message.answer("Привет! Отправь эмодзи 🎰, чтобы испытать удачу!")
 
-
 @router.message(F.dice.emoji == "🎰")
 async def handle_slot_machine(message: Message) -> None:
     dice_value = message.dice.value
@@ -46,8 +45,7 @@ async def handle_slot_machine(message: Message) -> None:
     if dice_value == SLOT_JACKPOT_VALUE:
         await handle_win(message)
     elif dice_value in SLOT_TWO_SEVENS_VALUES:
-        await message.answer("7️⃣7️⃣7️⃣  Близко! Ещё чуть-чуть и джекпот — попробуй ещё раз 🎰")
-    # На всех остальных комбинациях бот теперь молчит — как ты и просил
+        await message.reply("7️⃣7️⃣ Близко! Ещё чуть-чуть и джекпот — попробуй ещё раз 🎰")
 
 
 async def handle_win(message: Message) -> None:
@@ -60,7 +58,6 @@ async def handle_win(message: Message) -> None:
         f"Колекция - (<a href=\"{random_link}\">@SeeSheperdBank</a>)"
     )
     await message.answer(response_text)
-
 
 async def main() -> None:
     bot = Bot(
