@@ -7,10 +7,16 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
+import os
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+if not BOT_TOKEN:
+    raise ValueError("Переменная окружения BOT_TOKEN не установлена!")
 
 logging.basicConfig(level=logging.INFO)
 
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
+
 
 # value=64 -> три семёрки (джекпот)
 SLOT_JACKPOT_VALUE = 64
