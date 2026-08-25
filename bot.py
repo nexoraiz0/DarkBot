@@ -58,19 +58,18 @@ async def handle_slot_machine(message: Message) -> None:
 async def handle_win(message: Message) -> None:
     reward_url = random.choice(rewards_list)
 
-    sevens = custom_emoji(SEVEN_EMOJI_ID, "7️⃣") * 3
+    sevens = custom_emoji(SEVEN_EMOJI_ID, "7") * 3
     firecrackers = custom_emoji(FIRECRACKER_EMOJI_ID, "🧨") * 3
-    
+
     response_text = (
         f"Джекпот {sevens}!\n\n"
         f"Поздравляю ты выбил нфт себе в профиль\n"
         f"Нфт скоро будет зачислен на твой аккаунт\n"
         f"Выбивай {firecrackers} и забирай нфт из коллекции\n"
-        f"Колекция - (<a href=\"{random_link}\">@SeeSheperdBank</a>)"
+        f'Колекция - (<a href="{reward_url}">@SeeSheperdBank</a>)'
     )
 
     await message.reply(response_text)
-# --- конец функции ---
 
 
 async def main() -> None:
