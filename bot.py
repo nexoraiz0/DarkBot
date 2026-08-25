@@ -61,7 +61,7 @@ async def handle_win(message: Message) -> None:
     sevens = custom_emoji(SEVEN_EMOJI_ID, "7️⃣") * 3
     firecrackers = custom_emoji(FIRECRACKER_EMOJI_ID, "🧨") * 3
     
-    response_text = (
+    response_text = ("
         f"Джекпот {sevens}!\n\n"
         f"Поздравляю ты выбил нфт себе в профиль\n"
         f"Нфт скоро будет зачислен на твой аккаунт\n"
