@@ -1,22 +1,23 @@
 import asyncio
 import logging
 import random
-import os
 
 from aiogram import Bot, Dispatcher, F, Router
+from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message
 
 logging.basicConfig(level=logging.INFO)
 
-# Получаем токен из переменных окружения для безопасности на Railway
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
 
-# Значение value=64 в Telegram Dice API соответствует комбинации 🎰 777 (джекпот)
+# value=64 -> три семёрки (джекпот)
 SLOT_JACKPOT_VALUE = 64
 
-# Список наград — ссылок, которые получит пользователь при выигрыше
+# Значения, при которых выпадает ровно две семёрки из трёх барабанов
+SLOT_TWO_SEVENS_VALUES = {16, 32, 48, 52, 56, 60, 61, 62, 63}
+
 rewards_list = [
     "https://example.com/reward1",
     "https://example.com/reward2",
@@ -28,41 +29,23 @@ router = Router()
 
 @router.message(CommandStart())
 async def cmd_start(message: Message) -> None:
-    await message.answer(
-        "Привет! Отправь эмодзи 🎰, чтобы испытать удачу и попробовать выиграть приз!"
-    )
+    await message.answer("Привет! Отправь эмодзи 🎰, чтобы испытать удачу!")
 
 
 @router.message(F.dice.emoji == "🎰")
 async def handle_slot_machine(message: Message) -> None:
-    """
-    Обрабатывает бросок слот-машины.
-    """
     dice_value = message.dice.value
-
     logging.info(f"User {message.from_user.id} rolled slot machine: {dice_value}")
 
     if dice_value == SLOT_JACKPOT_VALUE:
         await handle_win(message)
-    else:
-        await message.answer("Увы, не повезло! Попробуй ещё раз 🎰")
+    elif dice_value in SLOT_TWO_SEVENS_VALUES:
+        await message.answer("7️⃣7️⃣7️⃣  Близко! Ещё чуть-чуть и джекпот — попробуй ещё раз 🎰")
+    # На всех остальных комбинациях бот теперь молчит — как ты и просил
 
 
 async def handle_win(message: Message) -> None:
-    """Логика победы: отправка кастомных премиум-эмодзи семерок и оригинального текста."""
-    random_link = random.choice(rewards_list)
-    
-    # ID кастомных семерок с вашего скриншота
-    emoji_id = "5364243419164064459"
-    
-    # Собираем три премиум-семерки через официальный тег Telegram
-    premium_sevens = (
-        f'<tg-emoji id="{emoji_id}">7</tg-emoji>'
-        f'<tg-emoji id="{emoji_id}">7</tg-emoji>'
-        f'<tg-emoji id="{emoji_id}">7</tg-emoji>'
-    )
-
-    # Итоговый текст строго по вашему шаблону с маскировкой ссылки под @SeeSheperdBank
+    reward_url = random.choice(rewards_list)
     response_text = (
         f"Джекпот {premium_sevens} !\n\n"
         f"Поздравляю ты выбил нфт себе в профиль\n"
@@ -70,21 +53,21 @@ async def handle_win(message: Message) -> None:
         f"Выбивай {premium_sevens} и забирай нфт из коллекции\n"
         f"Колекция - (<a href=\"{random_link}\">@SeeSheperdBank</a>)"
     )
-
-    # Добавляем инлайн-кнопку "ПОКАЗАТЬ ПОДАРОК" как на скриншоте
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="ПОКАЗАТЬ ПОДАРОК", url=random_link)]
-        ]
-    )
-
-    await message.answer(response_text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
+    await message.answer(response_text)
 
 
 async def main() -> None:
-    bot = Bot(token=BOT_TOKEN)
+    bot = Bot(
+        token=BOT_TOKEN,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    )
     dp = Dispatcher()
     dp.include_router(router)
+
+    # Критически важно против дублей: сбрасываем вебхук и все накопленные апдейты
+    # перед стартом поллинга. Если где-то параллельно висит webhook или второй
+    # процесс поллинга — апдейты будут долетать по несколько раз, как у тебя на скрине.
+    await bot.delete_webhook(drop_pending_updates=True)
 
     await dp.start_polling(bot)
 
