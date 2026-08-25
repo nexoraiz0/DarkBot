@@ -45,7 +45,7 @@ async def handle_slot_machine(message: Message) -> None:
     if dice_value == SLOT_JACKPOT_VALUE:
         await handle_win(message)
     elif dice_value in SLOT_TWO_SEVENS_VALUES:
-        await message.reply("7️⃣7️⃣ Близко! Ещё чуть-чуть и джекпот — попробуй ещё раз 🎰")
+        await message.reply("7️⃣7️⃣7️⃣ Близко! Ещё чуть-чуть и джекпот — попробуй ещё раз 🎰")
 
 
 async def handle_win(message: Message) -> None:
