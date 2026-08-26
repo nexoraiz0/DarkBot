@@ -6,6 +6,7 @@ import random
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
@@ -46,27 +47,43 @@ async def handle_slot_machine(message: Message) -> None:
     logging.info(f"User {message.from_user.id} rolled slot machine: {dice_value}")
 
     if dice_value == SLOT_JACKPOT_VALUE:
-        try:
-            await handle_win(message)
-        except Exception as e:
-            logging.error(f"Ошибка в handle_win: {e}", exc_info=True)
+        await handle_win(message)
     elif dice_value in SLOT_TWO_SEVENS_VALUES:
         await message.reply("7️⃣7️⃣7️⃣ Близко! Ещё чуть-чуть и джекпот — попробуй ещё раз 🎰")
+    else:
+        await message.reply("Не повезло, попробуй ещё раз 🎰")
 
 
-async def handle_win(message: Message) -> None:
-    reward_url = random.choice(rewards_list)
-    sevens = custom_emoji(SEVEN_EMOJI_ID, "7") * 3
-    firecrackers = custom_emoji(FIRECRACKER_EMOJI_ID, "🧨") * 3
+def build_win_text(reward_url: str, use_custom_emoji: bool) -> str:
+    if use_custom_emoji:
+        sevens = custom_emoji(SEVEN_EMOJI_ID, "7️⃣") * 3
+        firecrackers = custom_emoji(FIRECRACKER_EMOJI_ID, "🧨") * 3
+    else:
+        sevens = "7️⃣" * 3
+        firecrackers = "🧨" * 3
 
-    response_text = (
+    return (
         f"Джекпот {sevens}!\n\n"
         f"Поздравляю ты выбил нфт себе в профиль\n"
         f"Нфт скоро будет зачислен на твой аккаунт\n"
         f"Выбивай {firecrackers} и забирай нфт из коллекции\n"
         f'Колекция - (<a href="{reward_url}">@SeeSheperdBank</a>)'
     )
-    await message.reply(response_text)
+
+
+async def handle_win(message: Message) -> None:
+    reward_url = random.choice(rewards_list)
+
+    try:
+        response_text = build_win_text(reward_url, use_custom_emoji=True)
+        await message.reply(response_text)
+    except TelegramBadRequest as e:
+        # Скорее всего невалидный/недоступный custom_emoji_id — шлём без них
+        logging.error(f"Не удалось отправить с premium emoji, отправляю fallback: {e}")
+        response_text = build_win_text(reward_url, use_custom_emoji=False)
+        await message.reply(response_text)
+    except Exception as e:
+        logging.error(f"Ошибка в handle_win: {e}", exc_info=True)
 
 
 async def main() -> None:
