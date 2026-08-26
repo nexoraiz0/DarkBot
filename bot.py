@@ -72,24 +72,3 @@ async def handle_win(message: Message) -> None:
     await message.reply(response_text)
 
 
-async def main() -> None:
-    bot = Bot(
-        token=BOT_TOKEN,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    )
-    dp = Dispatcher()
-    dp.include_router(router)
-
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
-
-    response_text = (
-        f"Джекпот {premium_sevens} !\n\n"
-        f"Поздравляю ты выбил нфт себе в профиль\n"
-        f"Нфт скоро будет зачислен на твой аккаунт\n"
-        f"Выбивай и забирай нфт из коллекции\n"
-        f"Колекция - (<a href=\"{random_link}\">@SeeSheperdBank</a>)"
