@@ -66,8 +66,8 @@ def build_win_text(reward_url: str, use_custom_emoji: bool) -> str:
         f"Джекпот {sevens}!\n\n"
         f"Поздравляю ты выбил нфт себе в профиль\n"
         f"Нфт скоро будет зачислен на твой аккаунт\n"
-        f"Выбивай {firecrackers} и забирай нфт из коллекции\n"
-        f'Колекция - (<a href="{reward_url}">@SeeSheperdBank</a>)'
+        f'Выбивай {firecrackers} и забирай <a href="{reward_url}">нфт</a> из коллекции\n'
+        f"Колекция - @SeeSheperdBank"
     )
 
 
