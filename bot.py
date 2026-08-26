@@ -10,7 +10,6 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
 if not BOT_TOKEN:
     raise ValueError("Переменная окружения BOT_TOKEN не установлена!")
 
@@ -28,7 +27,6 @@ rewards_list = [
 # ID премиум-эмодзи
 SEVEN_EMOJI_ID = "5364243419164064459"
 FIRECRACKER_EMOJI_ID = "5919885416644475488"
-reward_url = random.choice(rewards_list)   # ← переменная называется reward_url
 
 router = Router()
 
@@ -40,6 +38,7 @@ def custom_emoji(emoji_id: str, fallback: str) -> str:
 @router.message(CommandStart())
 async def cmd_start(message: Message) -> None:
     await message.answer("Привет! Отправь эмодзи 🎰, чтобы испытать удачу!")
+
 
 @router.message(F.dice.emoji == "🎰")
 async def handle_slot_machine(message: Message) -> None:
@@ -55,10 +54,8 @@ async def handle_slot_machine(message: Message) -> None:
         await message.reply("7️⃣7️⃣7️⃣ Близко! Ещё чуть-чуть и джекпот — попробуй ещё раз 🎰")
 
 
-# --- ВОТ ЭТА ФУНКЦИЯ (замени старую целиком на неё) ---
 async def handle_win(message: Message) -> None:
     reward_url = random.choice(rewards_list)
-
     sevens = custom_emoji(SEVEN_EMOJI_ID, "7") * 3
     firecrackers = custom_emoji(FIRECRACKER_EMOJI_ID, "🧨") * 3
 
@@ -69,7 +66,20 @@ async def handle_win(message: Message) -> None:
         f"Выбивай {firecrackers} и забирай нфт из коллекции\n"
         f'Колекция - (<a href="{reward_url}">@SeeSheperdBank</a>)'
     )
-
     await message.reply(response_text)
 
 
+async def main() -> None:
+    bot = Bot(
+        token=BOT_TOKEN,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    )
+    dp = Dispatcher()
+    dp.include_router(router)
+
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
