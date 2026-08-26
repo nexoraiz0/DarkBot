@@ -28,6 +28,7 @@ rewards_list = [
 # ID премиум-эмодзи
 SEVEN_EMOJI_ID = "5364243419164064459"
 FIRECRACKER_EMOJI_ID = "5919885416644475488"
+reward_url = random.choice(rewards_list)   # ← переменная называется reward_url
 
 router = Router()
 
@@ -66,7 +67,7 @@ async def handle_win(message: Message) -> None:
         f"Поздравляю ты выбил нфт себе в профиль\n"
         f"Нфт скоро будет зачислен на твой аккаунт\n"
         f"Выбивай {firecrackers} и забирай нфт из коллекции\n"
-        f'Колекция - (<a href="{reward_list}">@SeeSheperdBank</a>)'
+        f'Колекция - (<a href="{reward_url}">@SeeSheperdBank</a>)'
     )
 
     await message.reply(response_text)
