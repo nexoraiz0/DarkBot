@@ -19,14 +19,21 @@ logging.basicConfig(level=logging.INFO)
 SLOT_JACKPOT_VALUE = 64
 
 rewards_list = [
-    "https://example.com/reward1",
+    "https://t.me/nft/ViceCream-157848",
     "https://example.com/reward2",
     "https://example.com/reward3",
 ]
 
 # ID премиум-эмодзи
-SEVEN_EMOJI_ID = "5364243419164064459"
-SLOT_EMOJI_ID = "5915988541644475488"
+SEVEN_EMOJI_ID = "5443135830883313930"
+SLOT_EMOJI_ID = "5915833712368424979"
+WIN_EMOJI_ID = "5208541126583136130"
+GIFT_EMOJI_ID = "5436006606078769970"
+FIRE_EMOJI_ID = "5424972470023104089"
+ARROW_EMOJI_ID = "5301038027601098171"
+LINK_EMOJI_ID = "5271604874419647061"
+STAR_EMOJI_ID = "5924870095925942277"
+DIAMOND_EMOJI_ID = "5280858699286471614"
 
 router = Router()
 
@@ -52,18 +59,34 @@ async def handle_slot_machine(message: Message) -> None:
 
 def build_win_text(reward_url: str, use_custom_emoji: bool) -> str:
     if use_custom_emoji:
+        win = custom_emoji(WIN_EMOJI_ID, "🎉")
         sevens = custom_emoji(SEVEN_EMOJI_ID, "7️⃣") * 3
-        slots = custom_emoji(SLOT_EMOJI_ID, "🎰") * 3
+        gift = custom_emoji(GIFT_EMOJI_ID, "🎁")
+        fire = custom_emoji(FIRE_EMOJI_ID, "🔥")
+        arrow = custom_emoji(ARROW_EMOJI_ID, "👇")
+        link = custom_emoji(LINK_EMOJI_ID, "🔗")
+        slots = custom_emoji(SLOT_EMOJI_ID, "🎰")
+        star = custom_emoji(STAR_EMOJI_ID, "⭐")
+        diamond = custom_emoji(DIAMOND_EMOJI_ID, "💎")
     else:
+        win = "🎉"
         sevens = "7️⃣" * 3
-        slots = "🎰" * 3
+        gift = "🎁"
+        fire = "🔥"
+        arrow = "👇"
+        link = "🔗"
+        slots = "🎰"
+        star = "⭐"
+        diamond = "💎"
 
     return (
-        f"Джекпот {sevens}!\n\n"
-        f'Поздравляю ты выбил <a href="{reward_url}">нфт</a> себе в профиль  \n'
-        f"Нфт скоро будет зачислен на твой аккаунт\n"
-        f"Выбивай {slots}и забирай нфт из колекции\n"
-        f"Колекция - (@LudoBanks)"
+        f"{win} Выигрыш! Слот выдал\n"
+        f"{sevens}!\n\n"
+        f"Твой профиль пополнился новым NFT{gift}. NFT скоро будет отправлен на ваш аккаунт{fire}\n"
+        f"NFT {arrow}\n"
+        f'{link} <a href="{reward_url}">Ссылка</a>\n\n'
+        f"На этом веселье не заканчивается! Крути {slots} дальше и выбивай другие предметы. {star}\n\n"
+        f"{diamond} Вся коллекция: @LudoBanks {star}"
     )
 
 
