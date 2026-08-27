@@ -63,11 +63,12 @@ def build_win_text(reward_url: str, use_custom_emoji: bool) -> str:
         firecrackers = "🧨" * 3
 
     return (
-        f"Джекпот {sevens}!\n\n"
-        f"Поздравляю ты выбил нфт себе в профиль\n"
-        f"Нфт скоро будет зачислен на твой аккаунт\n"
-        f'Выбивай {firecrackers} и забирай <a href="{reward_url}">нфт</a> из коллекции\n'
-        f"Колекция - @SeeSheperdBank"
+Джекпот <tg-emoji emoji-id=\"5364243419164064459\">7️⃣</tg-emoji><tg-emoji emoji-id=\"5364243419164064459\">7️⃣</tg-emoji><tg-emoji emoji-id=\"5364243419164064459\">7️⃣</tg-emoji>!
+
+Поздравляю ты выбил <a href=\"http://t.me/nft/ViceCream-157848\">нфт</a> себе в профиль  
+Нфт скоро будет зачислен на твой аккаунт
+Выбивай <tg-emoji emoji-id=\"5915988541644475488\">🎰</tg-emoji><tg-emoji emoji-id=\"5915988541644475488\">🎰</tg-emoji><tg-emoji emoji-id=\"5915988541644475488\">🎰</tg-emoji>и забирай нфт из колекции
+Колекция - (@LudoBanks)
     )
 
 
