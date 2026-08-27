@@ -17,7 +17,6 @@ if not BOT_TOKEN:
 logging.basicConfig(level=logging.INFO)
 
 SLOT_JACKPOT_VALUE = 64
-SLOT_TWO_SEVENS_VALUES = {16, 32, 48, 52, 56, 60, 61, 62, 63}
 
 rewards_list = [
     "https://example.com/reward1",
@@ -25,9 +24,8 @@ rewards_list = [
     "https://example.com/reward3",
 ]
 
-# ID премиум-эмодзи
+# ID премиум-эмодзи (семёрка)
 SEVEN_EMOJI_ID = "5364243419164064459"
-FIRECRACKER_EMOJI_ID = "5919885416644475488"
 
 router = Router()
 
@@ -48,27 +46,21 @@ async def handle_slot_machine(message: Message) -> None:
 
     if dice_value == SLOT_JACKPOT_VALUE:
         await handle_win(message)
-    elif dice_value in SLOT_TWO_SEVENS_VALUES:
-        await message.reply("7️⃣7️⃣7️⃣ Близко! Ещё чуть-чуть и джекпот — попробуй ещё раз 🎰")
-    else:
-        await message.reply("Не повезло, попробуй ещё раз 🎰")
+    # На всех остальных комбинациях бот молчит.
 
 
 def build_win_text(reward_url: str, use_custom_emoji: bool) -> str:
     if use_custom_emoji:
         sevens = custom_emoji(SEVEN_EMOJI_ID, "7️⃣") * 3
-        firecrackers = custom_emoji(FIRECRACKER_EMOJI_ID, "🧨") * 3
     else:
         sevens = "7️⃣" * 3
-        firecrackers = "🧨" * 3
 
     return (
-Джекпот <tg-emoji emoji-id=\"5364243419164064459\">7️⃣</tg-emoji><tg-emoji emoji-id=\"5364243419164064459\">7️⃣</tg-emoji><tg-emoji emoji-id=\"5364243419164064459\">7️⃣</tg-emoji>!
-
-Поздравляю ты выбил <a href=\"http://t.me/nft/ViceCream-157848\">нфт</a> себе в профиль  
-Нфт скоро будет зачислен на твой аккаунт
-Выбивай <tg-emoji emoji-id=\"5915988541644475488\">🎰</tg-emoji><tg-emoji emoji-id=\"5915988541644475488\">🎰</tg-emoji><tg-emoji emoji-id=\"5915988541644475488\">🎰</tg-emoji>и забирай нфт из колекции
-Колекция - (@LudoBanks)
+        f"Джекпот {sevens}!\n\n"
+        f'Поздравляю ты выбил <a href="{reward_url}">нфт</a> себе в профиль\n'
+        f"Нфт скоро будет зачислен на твой аккаунт\n"
+        f"Выбивай {sevens} и забирай нфт из коллекции\n"
+        f"Колекция - (@LudoBanks)"
     )
 
 
@@ -79,7 +71,7 @@ async def handle_win(message: Message) -> None:
         response_text = build_win_text(reward_url, use_custom_emoji=True)
         await message.reply(response_text)
     except TelegramBadRequest as e:
-        # Скорее всего невалидный/недоступный custom_emoji_id — шлём без них
+        # Скорее всего невалидный/недоступный custom_emoji_id — шлём без него
         logging.error(f"Не удалось отправить с premium emoji, отправляю fallback: {e}")
         response_text = build_win_text(reward_url, use_custom_emoji=False)
         await message.reply(response_text)
