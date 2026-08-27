@@ -24,8 +24,9 @@ rewards_list = [
     "https://example.com/reward3",
 ]
 
-# ID премиум-эмодзи (семёрка)
+# ID премиум-эмодзи
 SEVEN_EMOJI_ID = "5364243419164064459"
+SLOT_EMOJI_ID = "5915988541644475488"
 
 router = Router()
 
@@ -52,14 +53,16 @@ async def handle_slot_machine(message: Message) -> None:
 def build_win_text(reward_url: str, use_custom_emoji: bool) -> str:
     if use_custom_emoji:
         sevens = custom_emoji(SEVEN_EMOJI_ID, "7️⃣") * 3
+        slots = custom_emoji(SLOT_EMOJI_ID, "🎰") * 3
     else:
         sevens = "7️⃣" * 3
+        slots = "🎰" * 3
 
     return (
         f"Джекпот {sevens}!\n\n"
-        f'Поздравляю ты выбил <a href="{reward_url}">нфт</a> себе в профиль\n'
+        f'Поздравляю ты выбил <a href="{reward_url}">нфт</a> себе в профиль  \n'
         f"Нфт скоро будет зачислен на твой аккаунт\n"
-        f"Выбивай {sevens} и забирай нфт из коллекции\n"
+        f"Выбивай {slots}и забирай нфт из колекции\n"
         f"Колекция - (@LudoBanks)"
     )
 
