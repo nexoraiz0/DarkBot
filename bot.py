@@ -91,7 +91,7 @@ async def cmd_start(message: Message) -> None:
         await message.answer(
             "Привет, админ! Управление наградами доступно прямо здесь, в личке:\n\n"
             "/rewards — показать список ссылок на NFT-награды\n"
-            "Просто пришли ссылку сообщением — она добавится в список\n"
+            "Перешли сюда подарок (NFT) или пришли ссылку текстом — добавится в список\n"
             "/remove &lt;номер&gt; — убрать ссылку по номеру из /rewards"
         )
         return
@@ -135,10 +135,38 @@ async def cmd_remove_reward(message: Message) -> None:
     await message.reply(f"✅ Удалено: {removed}\nОсталось наград: {len(rewards_list)}")
 
 
+async def add_reward(message: Message, url: str) -> None:
+    """Общая логика добавления ссылки в награды — используется и для
+    текстовых ссылок, и для настоящих пересланных Telegram-подарков."""
+    if url in rewards_list:
+        await message.reply("Такая ссылка уже есть в списке наград.")
+        return
+    rewards_list.append(url)
+    save_rewards(rewards_list)
+    await message.reply(f"✅ Добавлено в награды: {url}\nВсего наград: {len(rewards_list)}")
+
+
+@router.message(F.chat.type == "private", F.unique_gift)
+async def handle_admin_dm_gift(message: Message) -> None:
+    """Админ пересылает/отправляет боту НАСТОЯЩИЙ Telegram-подарок (NFT).
+    Такое сообщение не содержит message.text — Telegram передаёт его через
+    отдельное поле unique_gift (Bot API: UniqueGiftInfo), поэтому раньше
+    он просто не ловился хендлером на текстовые ссылки. Слаг из
+    unique_gift.gift.name — это ровно то, что идёт в ссылку t.me/nft/<slug>.
+    """
+    if not is_admin(message.from_user.username):
+        return
+
+    slug = message.unique_gift.gift.name
+    url = f"https://t.me/nft/{slug}"
+    await add_reward(message, url)
+
+
 @router.message(F.chat.type == "private", F.text)
 async def handle_admin_dm_link(message: Message) -> None:
-    """Админ просто присылает ссылку в личку боту — она добавляется в награды.
-    Ловим этот хендлер последним (после команд выше), чтобы не мешать им."""
+    """Админ присылает ссылку ТЕКСТОМ (например, скопировал вручную) —
+    она тоже добавляется в награды. Настоящие пересланные подарки ловит
+    handle_admin_dm_gift выше, у них message.text пустой."""
     if not is_admin(message.from_user.username):
         return
     if message.text.startswith("/"):
@@ -146,14 +174,7 @@ async def handle_admin_dm_link(message: Message) -> None:
     if not looks_like_url(message.text):
         return  # обычное сообщение не от команды и не похожее на ссылку — игнорируем
 
-    url = message.text.strip()
-    if url in rewards_list:
-        await message.reply("Такая ссылка уже есть в списке наград.")
-        return
-
-    rewards_list.append(url)
-    save_rewards(rewards_list)
-    await message.reply(f"✅ Добавлено в награды: {url}\nВсего наград: {len(rewards_list)}")
+    await add_reward(message, message.text.strip())
 
 
 @router.message(F.dice.emoji == "🎰")
