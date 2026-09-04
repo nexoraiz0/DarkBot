@@ -151,6 +151,19 @@ def remove_reward_by_index(index: int) -> str | None:
     return url
 
 
+def remove_reward_by_url(url: str) -> None:
+    """Убирает конкретную ссылку из наград — используется после того, как
+    её выдали обычному (не-админскому) победителю, чтобы одна и та же
+    NFT-награда не досталась двум разным людям."""
+    conn = _get_conn()
+    placeholder = "%s" if USE_POSTGRES else "?"
+    cur = conn.cursor()
+    cur.execute(f"DELETE FROM rewards WHERE url = {placeholder}", (url,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 
 # ID премиум-эмодзи
 SEVEN_EMOJI_ID = "5443135830883313930"
@@ -328,7 +341,7 @@ def build_win_text(reward_url: str, use_custom_emoji: bool) -> str:
         f"{sevens}!\n\n"
         f"Твой профиль пополнился новым NFT{gift}. NFT скоро будет отправлен на ваш аккаунт{fire}\n"
         f"NFT {arrow}\n"
-        f'{link} <a href="{reward_url}">Ссылка</a>\n\n'
+        f'{link} {reward_url}\n\n'
         f"На этом веселье не заканчивается! Крути {slots} дальше и выбивай другие предметы. {star}\n\n"
         f"{diamond} Вся коллекция: @LudoBanks {star}"
     )
@@ -341,6 +354,7 @@ async def handle_win(message: Message) -> None:
         return
 
     reward_url = random.choice(rewards)
+    winner_is_admin = is_admin(message.from_user.username)
 
     try:
         response_text = build_win_text(reward_url, use_custom_emoji=True)
@@ -352,6 +366,13 @@ async def handle_win(message: Message) -> None:
         await message.reply(response_text)
     except Exception as e:
         logging.error(f"Ошибка в handle_win: {e}", exc_info=True)
+        return
+
+    if not winner_is_admin:
+        # Обычному игроку — награда выдана и убирается из пула, чтобы её
+        # больше никому не выдало повторно. Админам оставляем её в списке —
+        # их выигрыш не тратит призовой фонд.
+        remove_reward_by_url(reward_url)
 
 
 async def main() -> None:
